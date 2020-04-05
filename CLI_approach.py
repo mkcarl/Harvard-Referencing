@@ -135,8 +135,6 @@ class Book(Citation):
         part_two = '{booktitle}.'.format(booktitle=self.master_title)
         part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '.')
         part_four = '{edition}'.format(edition= '' if self.edition==None else ' ' + self.edition + ' edition. ' )
-        # part_three = '{volume}'.format(volume=' Volume ' + self.volume + '.' if self.volume!=None else '')
-        # part_four = '{edition}'.format(edition=' ' + self.edition + ' edition.' if self.edition!=None else '')
         part_five = '{place}: {publisher}.'.format(place=self.place_of_publication,publisher=self.publisher)
 
         return part_one+part_two+part_three+part_four+part_five
@@ -147,6 +145,21 @@ class Book(Citation):
         else : 
             return '({author}, {year})'.format(author=self.author.get_intext_name(source='journal'),year=self.year_of_publication) # return -> name et al.
         
+class EBook(Book):
+    def __init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher, url):
+        Book.__init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher)
+        self.url = url
+
+    def end_text(self):
+        part_one = '{name}, ({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
+        part_two = '{booktitle}. [Online]'.format(booktitle=self.master_title)
+        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '.')
+        part_four = '{edition}'.format(edition= '' if self.edition==None else ' ' + self.edition + ' edition. ' )
+        part_five = '{place}: {publisher}. '.format(place=self.place_of_publication,publisher=self.publisher)
+        part_six = 'Available from:{url}. [Accessed: {date}]'.format(url=self.url, date=self.get_date().strftime('%d/%m/%Y'))
+
+        return part_one+part_two+part_three+part_four+part_five+part_six
+
 class Names:
     '''
     Name objects to contain name(s) 
@@ -280,6 +293,6 @@ if __name__ == '__main__':
     # a = Website(None, None, 'Facebook', 'How to listen to music', 'www.facebook.com')
     # a = EJournal(Names(('Donald Trump', 'John Smith', 'Johnny English')), 2019,'How to use Twitter','Journal of Social Media', 1,7, (28,32),'https://journalonline.com')
     # a = Citation(Names('Trump Donald'), 'Journal of nature', 2002)
-    a = Book(Names('Donald Trump','Elon Musk', 'Katy Perry', 'Jay Chou'),'How to be a president', 2020, 5, 13, 'USA', 'Trump Ltd')
-    print(a.in_text())
+    a = EBook(Names('Donald Trump','Elon Musk', 'Katy Perry', 'Jay Chou'),'How to be a president', 2020, 5, 13, 'USA', 'Trump Ltd', 'www.facebook.com')
+    print(a.end_text())
 
