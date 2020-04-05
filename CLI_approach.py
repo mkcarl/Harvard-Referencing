@@ -49,24 +49,26 @@ class Online(Citation):
         self.article_title = article_title
         self.url = url
 
-class Website(Online):
-    def __init__(self, author, year_of_publication, website_name, article_title, url):
-        Online.__init__(self, author, year_of_publication, website_name, article_title, url)
+    def in_text(self):
+        return '({author}, {year})'.format(author=self.website_name if self.author == None else self.author.get_intext_name(),year= 'n.d.' if self.year_of_publication == None else self.year_of_publication)
 
     def end_text(self):
         part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
         part_two = '(n.d.) ' if self.year_of_publication==None else '({year}) '.format(year=self.year_of_publication)
         part_three = '{title}. '.format(title=self.article_title)
         part_four = '[Online] Available from:{url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'))
-        
         return part_one+part_two+part_three+part_four
-    
-    def in_text(self):
-        return '({author}, {year})'.format(author=self.website_name if self.author == None else self.author.get_intext_name(),year= 'n.d.' if self.year_of_publication == None else self.year_of_publication)
 
-class WebDocument(Website):
+class Website(Online):
+    pass
+
+class Blog(Online):
+    def __init__(self, author, year_of_publication, website_name, blog_title, url):
+        Online.__init__(self, author, year_of_publication, website_name, blog_title, url)
+
+class WebDocument(Online):
     def __init__(self, author, year_of_publication, month_of_publication, website_name ,article_title, url):
-        Website.__init__(self, author, year_of_publication, website_name, article_title, url)
+        Online.__init__(self, author, year_of_publication, website_name, article_title, url)
         self.month_of_publication = month_of_publication
     
     def end_text(self):
@@ -126,14 +128,14 @@ class Book(Citation):
     def __init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher):
         Citation.__init__(self,author, book_title, year_of_publication)
         self.volume = str(volume) if volume != None else None
-        self.edition = self.position(str(edition))
+        self.edition = None if edition == None else self.position(str(edition))
         self.place_of_publication = place_of_publication
         self.publisher = publisher
 
     def end_text(self):
-        part_one = '{name}, ({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
+        part_one = '{name}({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
         part_two = '{booktitle}.'.format(booktitle=self.master_title)
-        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '.')
+        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '. ')
         part_four = '{edition}'.format(edition= '' if self.edition==None else ' ' + self.edition + ' edition. ' )
         part_five = '{place}: {publisher}.'.format(place=self.place_of_publication,publisher=self.publisher)
 
@@ -151,14 +153,36 @@ class EBook(Book):
         self.url = url
 
     def end_text(self):
-        part_one = '{name}, ({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
+        part_one = '{name}({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
         part_two = '{booktitle}. [Online]'.format(booktitle=self.master_title)
-        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '.')
+        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '. ')
         part_four = '{edition}'.format(edition= '' if self.edition==None else ' ' + self.edition + ' edition. ' )
         part_five = '{place}: {publisher}. '.format(place=self.place_of_publication,publisher=self.publisher)
         part_six = 'Available from:{url}. [Accessed: {date}]'.format(url=self.url, date=self.get_date().strftime('%d/%m/%Y'))
 
         return part_one+part_two+part_three+part_four+part_five+part_six
+
+class Chapter(Book):
+    def __init__(self, author, book_title, editors, year_of_publication, volume, edition, place_of_publication, publisher):
+        Book.__init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher)
+        self.editors = editors
+    
+    def end_text(self):
+        part_one = '{name}({year}) '.format(name=self.author.get_endtext_name(),year=self.year_of_publication)
+        part_two = '{booktitle}. In: {editors} {amount}'.format(booktitle=self.master_title, editors=self.editors.get_endtext_name(), amount='(ed).' if len(self.editors) == 1 else '(eds).')
+        part_three = '{volume}'.format(volume= '' if self.volume==None else ' Volume ' + self.volume + '. ')
+        part_four = '{edition}'.format(edition= '' if self.edition==None else ' ' + self.edition + ' edition. ' )
+        part_five = '{place}: {publisher}.'.format(place=self.place_of_publication,publisher=self.publisher)
+
+        return part_one+part_two+part_three+part_four+part_five
+
+    def in_text(self):
+        if len(self.author.list_o_names) < 4:
+            return Citation.in_text(self)
+        else : 
+            return '({author}, {year})'.format(author=self.author.get_intext_name(source='journal'),year=self.year_of_publication) # return -> name et al.
+        
+    
 
 class Names:
     '''
@@ -176,6 +200,9 @@ class Names:
             self.list_o_names = list(names[0])
         elif isinstance(names[0],str):
             self.list_o_names = list(names)
+
+    def __len__(self):
+        return len(self.list_o_names)
     
     def get_famname(self):
         '''
@@ -287,12 +314,13 @@ class Names:
 if __name__ == '__main__':
     # a = Names('John Smith Jackson', 'Donald Trump','Hillary Clinton', 'Barrack Obama', 'Linus Sebastian', 'Tom Holland', 'Elon Musk')
     # print(a.get_famname())
-    # a = Website('John', 'Smith', 2002, 'Facebook', 'How to listen to music', 'www.facebook.com')
+    # a = Website(Names('John Legend', 'Smith Jackson'), 2002, 'Facebook', 'How to listen to music', 'www.facebook.com')
     # print(a.end_text())
     # a = WebDocument(Names('John Smith Dickson','Elon Musk', 'Donald Trump','Katy Perry'), 2002, 1 ,'Facebook', 'How to listen to music', 'www.facebook.com')
     # a = Website(None, None, 'Facebook', 'How to listen to music', 'www.facebook.com')
     # a = EJournal(Names(('Donald Trump', 'John Smith', 'Johnny English')), 2019,'How to use Twitter','Journal of Social Media', 1,7, (28,32),'https://journalonline.com')
     # a = Citation(Names('Trump Donald'), 'Journal of nature', 2002)
-    a = EBook(Names('Donald Trump','Elon Musk', 'Katy Perry', 'Jay Chou'),'How to be a president', 2020, 5, 13, 'USA', 'Trump Ltd', 'www.facebook.com')
+    # a = Book(Names('Donald Trump','Elon Musk', 'Katy Perry', 'Jay Chou'),'How to be a president', 2020, 5, None, 'USA', 'Trump Ltd')
+    a = Chapter(Names('Donald Trump'),'how to be a president', Names('Hillary Clinton','Bill Clinton'), 2001, 5, None, 'USA', 'White House Ltd')
     print(a.end_text())
-
+    
