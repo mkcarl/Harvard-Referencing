@@ -210,6 +210,22 @@ class Citation:
         else :
             return year
 class Online(Citation):
+    '''
+    Citation for general online sources (with/without author(s)). 
+
+    Format : 
+            COMPANY/ORGANISATION/FAMILY/SURNAME, initials (if required) or name of 
+            website if no author is available. (Year - in brackets) 
+            Title of webpage – in italics or underlined. Any numbers if 
+            website is part of a series – if needed. [Online –in square brackets] 
+            Available from - URL. [Accessed: followed by date in square brackets]. 
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            website_name         -> str
+            article_title        -> str
+            url                  -> str
+    '''
     def __init__(self, author, year_of_publication, website_name, article_title, url):
         Citation.__init__(self, author, website_name, year_of_publication)
         self.website_name = website_name
@@ -227,13 +243,61 @@ class Online(Citation):
         return part_one+part_two+part_three+part_four
 
 class Website(Online):
+    '''
+    Citation for websites (with/without author(s)). 
+
+    Format : 
+            COMPANY/ORGANISATION/FAMILY/SURNAME, initials (if required) or name of 
+            website if no author is available. (Year - in brackets) 
+            Title of webpage – in italics or underlined. Any numbers if 
+            website is part of a series – if needed. [Online –in square brackets] 
+            Available from - URL. [Accessed: followed by date in square brackets]. 
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            website_name         -> str
+            article_title        -> str
+            url                  -> str
+    '''
     pass
 
 class Blog(Online):
+    '''
+    Citation for blogs (with/without author(s)). 
+
+    Format : 
+            COMPANY/ORGANISATION/FAMILY/SURNAME, initials (if required) or name of 
+            website if no author is available. (Year - in brackets) 
+            Title of webpage – in italics or underlined. Any numbers if 
+            website is part of a series – if needed. [Online –in square brackets] 
+            Available from - URL. [Accessed: followed by date in square brackets]. 
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            website_name         -> str
+            blog_title           -> str
+            url                  -> str
+    '''
     def __init__(self, author, year_of_publication, website_name, blog_title, url):
         Online.__init__(self, author, year_of_publication, website_name, blog_title, url)
 
 class WebDocument(Online):
+    '''
+    Citation for general online documents (with/without author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, initials or name of website if no author is available. (Year - in brackets) 
+            Title of web document – in italics or underlined. Any numbers as indicated on the web document, 
+            i.e. if part of a series - if needed. [Online – in square brackets] Date of document – if specified. 
+            Available from - URL. [Accessed: followed by date in square brackets] 
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            month_of_publication -> int
+            website_name         -> str
+            article_title        -> str
+            url                  -> str
+    '''
     def __init__(self, author, year_of_publication, month_of_publication, website_name ,article_title, url):
         Online.__init__(self, author, year_of_publication, website_name, article_title, url)
         self.month_of_publication = month_of_publication
@@ -247,6 +311,24 @@ class WebDocument(Online):
         return part_one+part_two+part_three+part_four
 
 class Journal(Citation):
+    '''
+    Citation for journal articles (with author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, Initials. (Year of publication – in brackets) Title of article. 
+            Title of journal - in italics or underlined. Volume number. 
+            (Part number/month – in brackets). p. followed by page 
+
+ numbers. 
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            title_of_article     -> str
+            title_of_journal     -> str
+            volume_number        -> int 
+            part_number          -> int 
+            page                 -> None or int or tuple with 2 elements only
+    '''
     def __init__(self, author, year_of_publication, title_of_article, title_of_journal, volume_number, part_number, page):
         Citation.__init__(self, author, title_of_journal, year_of_publication)
         self.title_of_article = title_of_article
@@ -351,6 +433,24 @@ class EBook(Book):
         return part_one+part_two+part_three+part_four+part_five+part_six
 
 class Chapter(Book):
+    '''
+    Citation for particular chapter in a book by a specific author (with author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, Initials. (Year of publication - in brackets) Title of chapter/contribution. 
+            In: Author or Editor of Publication - Surname, Initials with (ed.) or (eds.) – in brackets, if relevant. 
+            Book Title - in italics or underlined. Series title and volume - if available. Edition - if not the first. 
+            Place of Publication: Publisher.
+    Input : data types 
+            author               -> Name object or None
+            book_title           -> str
+            editors              -> Name object or None
+            year_of_publication  -> int
+            volume               -> int or None
+            edition              -> int or None
+            place_of_publication -> str
+            publisher            -> str
+    '''
     def __init__(self, author, book_title, editors, year_of_publication, volume, edition, place_of_publication, publisher):
         Book.__init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher)
         self.editors = editors
@@ -371,6 +471,24 @@ class Chapter(Book):
             return '({author}, {year})'.format(author=self.author.get_intext_name(source='journal'),year=self.year_of_publication) # return -> name et al.
 
 class Encyclopedia(Chapter):
+    '''
+    Citation for entry in an encyclopedia (with author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, Initials. (Year of publication - in brackets) Title of chapter/contribution. 
+            In: Author or Editor of Publication - Surname, Initials with (ed.) or (eds.) – in brackets, if relevant. 
+            Book Title - in italics or underlined. Series title and volume - if available. Edition - if not the first. 
+            Place of Publication: Publisher.
+    Input : data types 
+            author               -> Name object or None
+            book_title           -> str
+            editors              -> Name object or None
+            year_of_publication  -> int
+            volume               -> int or None
+            edition              -> int or None
+            place_of_publication -> str
+            publisher            -> str
+    '''
     pass
 
 class Dictionary(Book):
