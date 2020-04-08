@@ -139,8 +139,6 @@ class Citation:
     '''
     def __init__(self, author, master_title, year_of_publication):
         self.MONTH = [None, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-
         self.author = author
         self.year_of_publication = self.format_year_of_publication(year_of_publication) 
         self.master_title = master_title
@@ -545,6 +543,12 @@ class Image(Online):
     def __init__(self, author, year_of_publication, website_name, desc_of_img, url):
         Online.__init__(self, author, year_of_publication, website_name, desc_of_img, url)
 
+    def end_text(self):
+        part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
+        part_two = '(n.d.) ' if self.year_of_publication==None else '({year}) '.format(year=self.year_of_publication)
+        part_three = '{title}. '.format(title=self.article_title)
+        part_four = '[Online Image] Available from:{url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'))
+        return part_one+part_two+part_three+part_four
 
 class Newspaper(Citation):
     '''
@@ -578,6 +582,69 @@ class Newspaper(Citation):
 
         return part_one + part_two + part_three + part_four
 
+class Video(WebDocument):
+    '''
+    Citation for videos online (with/without author(s)). 
+
+    Format : 
+            FAMILY/ SURNAME, initials or ORGANISATION IF NO NAMED PERSON IS AVAILABLE. (Year of distribution - in brackets) 
+            Title of Online Video – in italics or underlined. If available indicate the Number and/or title if part of a series. 
+            [Online video – in square brackets]. Date of the online video. Available from - URL. 
+            [Accessed: followed by date in square brackets].
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            day_of_publication   -> int
+            month_of_publication -> int
+            website_name         -> str
+            article_title        -> str
+            url                  -> str
+    '''
+    def __init__(self, author, year_of_publication, day_of_publication, month_of_publication, channel_name ,video_title, url):
+        WebDocument.__init__(self, author, year_of_publication, month_of_publication, channel_name ,video_title, url)
+        self.day_of_publication = self.position(day_of_publication)
+
+    def end_text(self):
+        part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
+        part_two = '({year}) '.format(year=self.year_of_publication)
+        part_three = '{title}. '.format(title=self.article_title)
+        part_four = '[Online Video] {day} {month}. Available from:{url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'),month=self.MONTH[self.month_of_publication],day=self.day_of_publication)
+
+        return part_one+part_two+part_three+part_four
+
+class Thesis(Citation):
+    '''
+    Citation for thesis 
+
+    Format : 
+        FAMILY/SURNAME, Initials. (Year of submission - in brackets) 
+        Title of Thesis - in italics or underlined. Degree statement. 
+        Degree Awarding Body. Location: Name of University. 
+
+    Input : 
+        author              -> Name object
+        year_of_publication -> int
+        thesis_title        -> str
+        degree_statement    -> str
+        degree_awarding_body-> str
+        location            -> str
+        university          -> str
+    '''
+    def __init__(self, author, year_of_publication, thesis_title, degree_statement, degree_awarding_body, location, university):
+        Citation.__init__(self, author,thesis_title, year_of_publication)
+        self.degree_statement = degree_statement
+        self.degree_awarding_body = degree_awarding_body 
+        self.location = location
+        self.university = university
+
+    def end_text(self):
+        part_one = f'{self.author.get_endtext_name} ({self.year_of_publication}) '
+        part_two = f'{self.master_title}. {self.degree_statement}. {self.degree_awarding_body}. '
+        part_three = f'{self.location}: {self.university}'
+
+        return part_one+part_two+part_three
+
+        
 if __name__ == '__main__':
     # a = Names('John Smith Jackson', 'Donald Trump','Hillary Clinton', 'Barrack Obama', 'Linus Sebastian', 'Tom Holland', 'Elon Musk')
     # print(a.get_famname())
