@@ -142,13 +142,12 @@ class Citation:
 
 
         self.author = author
-        self.year_of_publication = year_of_publication 
+        self.year_of_publication = self.format_year_of_publication(year_of_publication) 
         self.master_title = master_title
         self.access_date = self.get_date()
 
     def in_text(self):
-            return '({author}, {year})'.format(author=self.master_title if self.author == None else self.author.get_intext_name(),year= 'n.d.' if self.year_of_publication == None else self.year_of_publication)
-
+            return '({author}, {year})'.format(author=self.master_title if self.author == None else self.author.get_intext_name(),year=self.year_of_publication)
 
     @staticmethod
     def get_date():
@@ -204,6 +203,12 @@ class Citation:
         else :
             raise ValueError('Only accept tuple or int type values')
         
+    @staticmethod
+    def format_year_of_publication(year):
+        if year == None : 
+            return 'n.d.'
+        else :
+            return year
 class Online(Citation):
     def __init__(self, author, year_of_publication, website_name, article_title, url):
         Citation.__init__(self, author, website_name, year_of_publication)
@@ -212,7 +217,7 @@ class Online(Citation):
         self.url = url
 
     def in_text(self):
-        return '({author}, {year})'.format(author=self.website_name if self.author == None else self.author.get_intext_name(),year= 'n.d.' if self.year_of_publication == None else self.year_of_publication)
+        return '({author}, {year})'.format(author=self.website_name if self.author == None else self.author.get_intext_name(),year=self.year_of_publication)
 
     def end_text(self):
         part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
@@ -235,7 +240,7 @@ class WebDocument(Online):
     
     def end_text(self):
         part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
-        part_two = '(n.d.) ' if self.year_of_publication==None else '({year}) '.format(year=self.year_of_publication)
+        part_two = '({year}) '.format(year=self.year_of_publication)
         part_three = '{title}. '.format(title=self.article_title)
         part_four = '[Online] {month} {year}. Available from:{url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'),month=self.MONTH[self.month_of_publication],year=self.year_of_publication)
 
@@ -273,6 +278,23 @@ class EJournal(Journal):
         return part_one+part_two+part_three+part_four
 
 class Book(Citation):
+    '''
+    Citation for books (with/without author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, Initials. (Year of publication - in brackets) Title of chapter/contribution. 
+            In: Author or Editor of Publication - Surname, Initials with (ed.) or (eds.) – in brackets, if relevant. 
+            Book Title - in italics or underlined. Series title and volume - if available. 
+            Edition - if not the first. Place of Publication: Publisher. 
+    Input : data types 
+            author               -> Name object or None
+            book_title           -> str
+            year_of_publication  -> int
+            volume               -> int or None
+            edition              -> int or None
+            place_of_publication -> str
+            publisher            -> str
+    '''
     def __init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher):
         Citation.__init__(self,author, book_title, year_of_publication)
         self.volume = str(volume) if volume != None else None
@@ -296,6 +318,24 @@ class Book(Citation):
             return '({author}, {year})'.format(author=self.author.get_intext_name(source='journal'),year=self.year_of_publication) # return -> name et al.
         
 class EBook(Book):
+    '''
+    Citation for books (with/without author(s)). 
+
+    Format : 
+            FAMILY/SURNAME, Initial(s). (Year of publication - in brackets) 
+            Title - in italics or underlined. [Online – in square brackets] 
+            City of publication: Publisher. Available from - URL. 
+            [Accessed: followed by date in square brackets] 
+    Input : data types 
+            author               -> Name object or None
+            book_title           -> str
+            year_of_publication  -> int
+            volume               -> int or None
+            edition              -> int or None
+            place_of_publication -> str
+            publisher            -> str
+            url                  -> str
+        '''
     def __init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher, url):
         Book.__init__(self, author, book_title, year_of_publication, volume, edition, place_of_publication, publisher)
         self.url = url
@@ -334,6 +374,22 @@ class Encyclopedia(Chapter):
     pass
 
 class Dictionary(Book):
+    '''
+    Citation for dictionaries (with/without author). 
+
+    Format : 
+            FAMILY/SURNAME, Initials. (ed.) or (eds.)-in brackets for editor(s) (Year of publication - in brackets) 
+            Dictionary Title – in italics or underlined. Series title and/or volume - if available. 
+            Edition - if not the first. Place of Publication: Publisher.
+    Input : data types 
+            author               -> Name object or None
+            dictionary_title     -> str
+            year_of_publication  -> int
+            volume               -> int or None
+            edition              -> int or None
+            place_of_publication -> str
+            publisher            -> str
+    '''
     def __init__(self, author, dictionary_title, year_of_publication, volume, edition, place_of_publication, publisher):
         Book.__init__(self, author, dictionary_title, year_of_publication, volume, edition, place_of_publication, publisher)
 
@@ -353,6 +409,21 @@ class Dictionary(Book):
             return '({author}, {year})'.format(author=self.author.get_intext_name(source='journal'),year=self.year_of_publication)
 
 class Image(Online):
+    '''
+    Citation for online images (with/without author). 
+
+    Format : 
+            FAMILY/SURNAME(S), Initials. (Year of publication) 
+            Title or description of image - in italics or underlined. Name of organisation or website. 
+            [Online Image] Available from - URL. [Accessed: followed by date].
+
+    Input : data types 
+            author               -> Name object or None
+            year_of_publication  -> int
+            website_name         -> str
+            desc_of_img          -> str
+            url                  -> str
+    '''    
     def __init__(self, author, year_of_publication, website_name, desc_of_img, url):
         Online.__init__(self, author, year_of_publication, website_name, desc_of_img, url)
 
@@ -396,10 +467,10 @@ if __name__ == '__main__':
     # print(a.end_text())
     # a = WebDocument(Names('John Smith Dickson','Elon Musk', 'Donald Trump','Katy Perry'), 2002, 1 ,'Facebook', 'How to listen to music', 'www.facebook.com')
     # a = Website(None, None, 'Facebook', 'How to listen to music', 'www.facebook.com')
-    # a = EJournal(Names(('Donald Trump', 'John Smith', 'Johnny English')), 2019,'How to use Twitter','Journal of Social Media', 1,7, (28,32),'https://journalonline.com')
+    # a = EJournal(Names(('Donald Trump', 'John Smith', 'Johnny English')), None,'How to use Twitter','Journal of Social Media', 1,7, (28,32),'https://journalonline.com')
     # a = Citation(Names('Trump Donald'), 'Journal of nature', 2002)
     # a = Dictionary(None,'Oxford Dictionary', 2001, 5, None, 'USA', 'Trump Ltd')
     # a = Chapter(Names('Donald Trump'),'how to be a president', Names('Hillary Clinton','Bill Clinton'), 2001, 5, None, 'USA', 'White House Ltd')
-    a = Newspaper(None, 'The Star', 2019, 'What will happen during a global pandemic?', 25, 12, None)
+    a = Newspaper(None, 'The Star', None, 'What will happen during a global pandemic?', 25, 12, None)
     print(a.end_text())
     
