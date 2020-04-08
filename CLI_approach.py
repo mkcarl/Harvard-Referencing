@@ -128,6 +128,15 @@ class Names:
 
 
 class Citation:
+    '''
+    General citation object. Shall not be used externally 
+
+    Input : data types 
+
+        author              -> Name object or None 
+        master_title        -> str
+        year_of_publication -> int
+    '''
     def __init__(self, author, master_title, year_of_publication):
         self.MONTH = [None, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -147,6 +156,16 @@ class Citation:
    
     @staticmethod
     def position(number):
+        '''
+        Returns the ordinal of the int.  
+        Example : 1st, 2nd
+
+        input : data type
+            number -> str or int 
+        '''
+        if isinstance(number,int):
+            number = str(number)
+
         if number[-1] == 1 or number[-1] == '1':
             if number == 11 or number =='11':
                 return '11th'
@@ -169,6 +188,12 @@ class Citation:
 
     @staticmethod
     def format_page_num(page):
+        '''
+        Return the page number in the format : 'from-to' / 'from'
+
+        input : 
+            page -> int or tuple with 2 elements only  
+        '''
         if isinstance(page,int):
             return '{}'.format(page)
         elif isinstance(page,tuple):
@@ -333,10 +358,26 @@ class Image(Online):
 
 
 class Newspaper(Citation):
+    '''
+    Citation for newspaper articles (with/without author). 
+
+    Format : 
+            SURNAME, Initials. (Year of publication - in brackets) Title of Article.
+            Title of Newspaper - in italics or underlined. Day and month of article. 
+            Page number of article - if available.
+    Input : data types 
+            author               -> Name object or None
+            newspaper_title      -> str
+            year_of_publication  -> int
+            article_title        -> str
+            day_of_publication   -> int
+            month_of_publication -> int
+            page                 -> int or None
+    '''
     def __init__(self, author, newspaper_title, year_of_publication, article_title, day_of_publication, month_of_publication, page):
         Citation.__init__(self, author, newspaper_title, year_of_publication)
         self.article_title = article_title
-        self.day_of_publication = self.position(str(day_of_publication))
+        self.day_of_publication = self.position(day_of_publication)
         self.month_of_publication = self.MONTH[month_of_publication]
         self.page = '' if page==None else  'p. ' +self.format_page_num(page)
 
