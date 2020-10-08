@@ -237,7 +237,7 @@ class Online(Citation):
         part_one = self.website_name+'. ' if self.author==None else self.author.get_endtext_name() 
         part_two = '(n.d.) ' if self.year_of_publication==None else '({year}) '.format(year=self.year_of_publication)
         part_three = '{title}. '.format(title=self.article_title)
-        part_four = '[Online] Available from:{url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'))
+        part_four = '[Online] Available from: {url}. [Accessed:{date}].'.format(url=self.url,date=self.get_date().strftime('%d/%m/%Y'))
         return part_one+part_two+part_three+part_four
 
 class Website(Online):
@@ -646,16 +646,11 @@ class Thesis(Citation):
 
         
 if __name__ == '__main__':
-    # a = Names('John Smith Jackson', 'Donald Trump','Hillary Clinton', 'Barrack Obama', 'Linus Sebastian', 'Tom Holland', 'Elon Musk')
-    # print(a.get_famname())
-    # a = Website(Names('John Legend', 'Smith Jackson'), 2002, 'Facebook', 'How to listen to music', 'www.facebook.com')
-    # print(a.end_text())
-    # a = WebDocument(Names('John Smith Dickson','Elon Musk', 'Donald Trump','Katy Perry'), 2002, 1 ,'Facebook', 'How to listen to music', 'www.facebook.com')
-    # a = Website(None, None, 'Facebook', 'How to listen to music', 'www.facebook.com')
-    # a = EJournal(Names(('Donald Trump', 'John Smith', 'Johnny English')), None,'How to use Twitter','Journal of Social Media', 1,7, (28,32),'https://journalonline.com')
-    # a = Citation(Names('Trump Donald'), 'Journal of nature', 2002)
-    # a = Dictionary(None,'Oxford Dictionary', 2001, 5, None, 'USA', 'Trump Ltd')
-    # a = Chapter(Names('Donald Trump'),'how to be a president', Names('Hillary Clinton','Bill Clinton'), 2001, 5, None, 'USA', 'White House Ltd')
-    a = Newspaper(None, 'The Star', None, 'What will happen during a global pandemic?', 25, 12, None)
+    a = Website(None,
+    None,
+    'YourCoach', 
+    'Vroom expectancy motivation theory',
+    'https://www.yourcoach.be/en/employee-motivation-theories/vroom-expectancy-motivation-theory.php')
     print(a.end_text())
+    print(a.in_text())
     
